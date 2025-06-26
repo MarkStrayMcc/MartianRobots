@@ -5,9 +5,25 @@ A C# console app that simulates robot movement on a Martian world (the world bei
 
 	Martian.Robots.sln
 	├── Martian.Robots                 # console app
+	│	├── Models/
+	│	│   ├── Orientation.cs         # Cardinal direction enum
+	│	│   └── Position.cs            # Immutable coordinate record
 	│	├── Program.cs                 # Main application entry point
 	│	├── README.md                  
 	│	└── .gitignore                 
 	│
 	└── Martian.Robots.Tests           # test suite, uses NUnit
-		└── UnitTest1.cs               
+		└── Models/
+			└── PositionTests.cs       # Tests for position functionality           
+
+## Notes on technical decisions made
+### Orientation Enum (Orientation.cs)
+ - Represents cardinal directions (North, East, South, West)
+ - Could be extended with intercardinal directions (NE, SE, etc.) if needed
+ - Matches standard compass notation
+	
+### Position Record (Position.cs)
+ - Immutability: Prevents unintended state changes
+ - Value Semantics: Two positions are equal if their properties match
+ - Non-destructive Updates: Uses with expressions for movement
+ - Clean Formatting: Built-in ToString() matches required output format
