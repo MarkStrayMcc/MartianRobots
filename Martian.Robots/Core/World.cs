@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Martian.Robots.Core
 {
-    public class World
+    public class World : IWorld
     {
         private const int MaxCoordinateValue = 50;
         private readonly ConcurrentDictionary<string, byte> _scentMarkers = new();

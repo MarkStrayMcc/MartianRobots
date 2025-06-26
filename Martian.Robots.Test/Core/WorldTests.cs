@@ -26,6 +26,7 @@ namespace Martian.Robots.Test.Core
             {
                 Assert.That(world.MaxX, Is.EqualTo(TestMaxX));
                 Assert.That(world.MaxY, Is.EqualTo(TestMaxY));
+                Assert.That(world, Is.InstanceOf<IWorld>());
             });
         }
 
@@ -143,6 +144,22 @@ namespace Martian.Robots.Test.Core
 
             // Assert
             Assert.That(result, Is.True);
+        }
+
+        [Test]
+        public void World_Implements_IWorld_Contract()
+        {
+            // Arrange
+            var world = new World(TestMaxX, TestMaxY) as IWorld;
+
+            // Act & Assert
+            Assert.Multiple(() =>
+            {
+                Assert.That(world.MaxX, Is.EqualTo(TestMaxX));
+                Assert.That(world.MaxY, Is.EqualTo(TestMaxY));
+                Assert.That(() => world.IsPositionValid(0, 0), Throws.Nothing);
+                Assert.That(() => world.TryRecordMarker(0, 0, Orientation.N), Throws.Nothing);
+            });
         }
     }
 }
