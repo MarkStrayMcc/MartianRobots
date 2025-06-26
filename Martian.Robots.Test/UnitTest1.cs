@@ -16,8 +16,7 @@ namespace Martian.Robots.Test
         [Test]
         public void Test1()
         {
-            // test the build is running the tests
-            Assert.Fail();
+            Assert.Pass();
         }
     }
 }
