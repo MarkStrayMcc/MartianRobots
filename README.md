@@ -41,3 +41,4 @@ A C# console app that simulates robot movement on a Martian world (the world bei
  - Thread-Safety: Uses ConcurrentDictionary for scent markers to support potential concurrent robot simulations.
  - Boundary Enforcement: Encapsulates grid dimensions (MaxX, MaxY) and validates positions.
  - Scent marker system has atomic operations via TryAdd prevent race conditions.
+ - Interface Implementation: Implements IWorld for testability and future extensibility (e.g., different planet types). 
