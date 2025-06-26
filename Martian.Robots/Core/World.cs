@@ -1,4 +1,5 @@
-﻿using Martian.Robots.Models;
+﻿using Martian.Robots.Core.Abstractions;
+using Martian.Robots.Models;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -31,7 +32,7 @@ namespace Martian.Robots.Core
         public bool TryRecordMarker(int x, int y, Orientation orientation)
         {
             var scentKey = $"{x},{y},{orientation}";
-            return _scentMarkers.TryAdd(scentKey, 0);
+            return _scentMarkers.TryAdd(scentKey, 0); // Returns true only if this is the first time
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using Martian.Robots.Models;
 
-namespace Martian.Robots.Core
+namespace Martian.Robots.Core.Abstractions
 {
     public interface IWorld
     {

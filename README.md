@@ -4,28 +4,40 @@ A C# console app that simulates robot movement on a Martian world (the world bei
 ### Solution Structure
 
 	Martian.Robots.sln
-	├── Martian.Robots                 # console app
-	│	├── Core/
-	│	│   ├── IWorld.cs              # Interface for world interactions
-	│	│   ├── Robot.cs               # Robot movement and instruction processing
-	│	│   └── World.cs               # Grid boundaries and scent marker logic
-	│	├── Models/
-	│	│   ├── Orientation.cs         # Cardinal direction enum
-	│	│   └── Position.cs            # Immutable coordinate record
-	│	├── Program.cs                 # Main application entry point
-	│	├── README.md                  
-	│	└── .gitignore                 
+	├── Martian.Robots                 # Console Application
+	│   ├── Core/
+	│   │   ├── Abstractions/				# Interfaces
+	│   │   │   ├── ICommand.cs				# Command pattern contract
+	│   │   │   ├── ICommandRegistry.cs     # Interface for the command registry
+	│   │   │   ├── IWorld.cs				# World interactions
+	│   │   │   └── IWorldFactory.cs		# World creation
+	│   │   ├── Commands/					# Command implementations
+	│   │   │   ├── MoveForwardCommand.cs
+	│   │   │   ├── TurnLeftCommand.cs
+	│   │   │   └── TurnRightCommand.cs
+	│   │   ├── Services/
+	│   │   │   ├── CommandRegistry.cs		# Command dispatcher
+	│   │   │   └── WorldFactory.cs			# World builder (config used here?)
+	│   │   ├── Robot.cs					# Robot behavior
+	│   │   └── World.cs					# Grid/scent logic
+	│   ├── Models/
+	│   │   ├── Orientation.cs         # N/E/S/W enum
+	│   │   └── Position.cs            # Immutable record
+	│   ├── Program.cs                 # DI configuration
+	│   └── Application.cs             # entry point
 	│
-	└── Martian.Robots.Tests           # test suite, uses NUnit
+	└── Martian.Robots.Tests           # NUnit tests
 		├── Core/
-		│   ├── RobotTests.cs          # Tests for robot behavior (uses Moq)
-		│   └── WorldTests.cs          # Tests for world logic
+		│   ├── Commands/				# Command tests
+		│   ├── RobotTests.cs          # Robot behavior (Moq)
+		│   ├── WorldTests.cs          # Grid validation
+		│   └── CommandTests/          # Command-specific tests
 		└── Models/
-			└── PositionTests.cs       # Tests for position functionality           
+			└── PositionTests.cs         
 
 ### Notes on technical decisions made
 #### General approach
- - I want a world that a robot can enter or exist on and move withinthe limits that the world sets, I am so big and you can only move so far. There is additional log to ensure that any previous robot that falls off the planet will leave a marker and this will stop the other robots falling off and being lost but they will stay where they are and stop processing instructions.
+ - I want a world that a robot can enter or exist on and move withinthe limits that the world sets, I am so big and you can only move so far. There is additional log to ensure that any previous robot that falls off the planet will leave a marker and this will stop the other robots falling off and being lost but they will stay where they are and stop processing instructions. 
 
 #### Orientation Enum (Orientation.cs)
  - Represents cardinal directions (North, East, South, West)
@@ -37,6 +49,15 @@ A C# console app that simulates robot movement on a Martian world (the world bei
  - Value Semantics: Two positions are equal if their properties match
  - Non-destructive Updates: Uses with expressions for movement
  - Clean Formatting: Built-in ToString() matches required output format
+	
+
+#### The Command Registry (CommandRegistry.cs)
+ - Open/Closed Principle: New commands can be added without modifying existing code (just register new ICommand implementations).
+ - Robot Class Doesn't Change: The Robot.ProcessInstructions() method stays simple—it doesn't need updates when new commands are introduced.
+ - Dynamic Command Registration: Commands can be added/removed at runtime (e.g., for modding or experimental features)
+ - Testability
+	- Isolated Unit Tests: Each command can be tested independently
+	- Easy Mocking: The registry can be mocked to return test doubles
 
 #### World Class (World.cs)
  - Single Responsibility: Manages only grid rules and scent markers.
@@ -47,14 +68,43 @@ A C# console app that simulates robot movement on a Martian world (the world bei
  - Interface Implementation: Implements IWorld for testability and future extensibility (e.g., different planet types). 
 	
 #### Robot Class (Robot.cs)
- - Dependency Injection: Accepts IWorld to decouple from concrete implementations.
- - Immutable Position Updates: Uses with expressions to create new Position records instead of modifying state.
- - Instruction Processing:
-	- Validates commands (L/R/F only).
-	- Short-circuits if robot is lost.
- - State Isolation:
-	- _isLost is private; external access only via ToString().
-	- Position changes are atomic.
- - Clear Behavior: Each method handles one logical operation (turning/moving).
- - Fail-Fast Validation: Throws exceptions for invalid initial positions or commands.
- - Thread-Safe Design: No shared state between robots.
+ - Testability: Easy to mock IWorld and ICommandRegistry
+ - Domain Clarity: Matches problem requirements precisely
+ - Robustness: Impossible to corrupt state mid-operation
+ - Extensibility: New commands require zero robot modifications
+	
+### Future Enhancements
+ - UI, lacks a UI
+ - Async Processing: For handling multiple robots concurrently
+ - Configuration: Customizable grid sizes and rules
+
+### Running the app
+Prerequisites: .NET 6+ SDK
+
+#### command line
+Build: dotnet build
+Run: dotnet run (from Martian.Robots directory)
+Test: dotnet test (from Martian.Robots.Tests directory)
+
+#### visual studio
+Build: Hit F6
+Run: Hit F5
+
+#### sample Input
+5 3 # creates world grid
+
+1 1 E
+RFRFRFRF
+
+3 2 N
+FRRFLLFFRRFLL
+
+0 3 W
+LLFFFLFLFL
+
+Expected Output
+1 1 E
+
+3 3 N LOST
+
+2 3 S 
