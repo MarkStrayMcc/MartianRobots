@@ -11,5 +11,6 @@ namespace Martian.Robots.Core.Abstractions
     {
         Position Execute(Position current, IWorld world);
         char Symbol { get; }
+
     }
 }
